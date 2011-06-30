@@ -1,0 +1,27 @@
+diff -Naur eglibc-2.14-14385/nis/Makefile eglibc-2.14-14385.patch/nis/Makefile
+--- eglibc-2.14-14385/nis/Makefile	2011-06-30 10:08:40.000000000 +0200
++++ eglibc-2.14-14385.patch/nis/Makefile	2011-06-30 13:44:20.910951378 +0200
+@@ -25,9 +25,9 @@
+ 
+ aux			:= nis_hash
+ 
++headers			:= $(wildcard rpcsvc/*.[hx])
+ distribute		:= nss-nis.h nss-nisplus.h nis_intern.h Banner \
+-			   nisplus-parser.h nis_xdr.h nss \
+-			   $(wildcard rpcsvc/*.[hx])
++			   nisplus-parser.h nis_xdr.h nss
+ 
+ # These are the databases available for the nis (and perhaps later nisplus)
+ # service.  This must be a superset of the services in nss.
+diff -Naur eglibc-2.14-14385/sunrpc/Makefile eglibc-2.14-14385.patch/sunrpc/Makefile
+--- eglibc-2.14-14385/sunrpc/Makefile	2011-06-30 10:08:40.000000000 +0200
++++ eglibc-2.14-14385.patch/sunrpc/Makefile	2011-06-30 14:14:18.152343738 +0200
+@@ -55,7 +55,7 @@
+ 				    des_crypt.h)
+ headers-not-in-tirpc = $(addprefix rpc/,key_prot.h rpc_des.h) \
+ 		       $(rpcsvc:%=rpcsvc/%) rpcsvc/bootparam.h
+-headers = rpc/netdb.h
++headers = rpc/netdb.h $(headers-in-tirpc) $(headers-not-in-tirpc)
+ generated = $(rpcsvc:%.x=rpcsvc/%.h) $(rpcsvc:%.x=x%.c) $(rpcsvc:%.x=x%.stmp) \
+ 	    $(rpcsvc:%.x=rpcsvc/%.stmp) rpcgen
+ generated-dirs := rpcsvc
