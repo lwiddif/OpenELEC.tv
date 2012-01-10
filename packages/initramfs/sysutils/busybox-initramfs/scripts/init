@@ -66,8 +66,10 @@ NFS_OVERLAY="192.168.1.1:/var/lib/overlay"
         ;;
       nbdroot=*)
         nbdroot="${arg#nbdroot=}"
-        NBD_ROOT_SERVER=$( echo "${nbdroot}" | /bin/busybox sed 's/:.*//')
-        NBD_ROOT_PORT=$( echo "${nbdroot}" | /bin/busybox sed 's/.*://')
+        #NBD_ROOT_SERVER=$( echo "${nbdroot}" | /bin/busybox sed 's/:.*//')
+        #NBD_ROOT_PORT=$( echo "${nbdroot}" | /bin/busybox sed 's/.*://')
+        NBD_ROOT_SERVER=${nbdroot%%:*}
+        NBD_ROOT_PORT=${nbdroot##*:}
         ;;
       nbdserver=*)
         NBD_ROOT_SERVER="${arg#nbdserver=}"
@@ -77,6 +79,12 @@ NFS_OVERLAY="192.168.1.1:/var/lib/overlay"
         ;;
       nfsoverlay=*)
         NFS_OVERLAY="${arg#nfsoverlay=}"
+        ;;
+      root_rw)
+        ROOTRW=yes
+        ;;
+      loadsys=*)
+        LOADSYS="${arg#loadsys=}"
         ;;
     esac
   done
@@ -230,8 +238,25 @@ NFS_OVERLAY="192.168.1.1:/var/lib/overlay"
     fi
 
     if [ -f "/flash/$IMAGE_SYSTEM" ]; then
+     ##
+     if [ -n "$ROOTRW" ]; then
+      mkdir -p /mnt/S
+      mount -t tmpfs tmpfs /mnt/S
+      mkdir -p /mnt/S/U /mnt/S/L
+      # loadsys =/ =http:// 
+      if [ -n "$LOADSYS" ]; then
+        cat "$LOADSYS" > /mnt/S/SYSTEM
+      else
+        cat "/flash/$IMAGE_SYSTEM" > /mnt/S/SYSTEM
+      fi  
+      mount_part "/mnt/S/SYSTEM" "/mnt/S/L" "ro,loop"
+      mount -t overlayfs overlayfs -olowerdir=/mnt/S/L,upperdir=/mnt/S/U /sysroot
+      [ "$ERR_ENV" -ne "0" ] && debug_shell
+     else
       mount_part "/flash/$IMAGE_SYSTEM" "/sysroot" "ro,loop"
       [ "$ERR_ENV" -ne "0" ] && debug_shell
+     fi
+     ## 
     else
       error "INIT_2" "Could not find system."
       debug_shell

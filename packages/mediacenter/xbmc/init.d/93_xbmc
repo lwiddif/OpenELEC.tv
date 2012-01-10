@@ -59,8 +59,10 @@ fi
     sh $AUTOSTART
   fi
 
-# starting autoupdate
-  [ -f /usr/bin/autoupdate ] && /usr/bin/autoupdate &
+####
+## starting autoupdate
+#  [ -f /usr/bin/autoupdate ] && /usr/bin/autoupdate &
+####
 
 # waiting for Xorg to start
   wait_for_xorg
@@ -69,6 +71,7 @@ fi
   ( usleep 15000000
     progress "set cpu's to 'on demand'"
     cpupower frequency-set -g ondemand > /dev/null 2>&1
+    cpupower frequency-set -g conservative > /dev/null 2>&1
   )&
 
 # starting XBMC
